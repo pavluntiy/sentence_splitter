@@ -12,8 +12,8 @@ def get_features(para, max_count = None):
     	# if not cands[c]:
     	# 	continue
     	# print len(cands[c])
-    	print cands[c].strip()
-    	print '---'
+    	# print cands[c].strip()
+    	# print '---'
 
         cur = {}
         cur["prev_len"] = len(cands[c - 1])
