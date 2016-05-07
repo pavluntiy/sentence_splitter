@@ -6,6 +6,7 @@ import pickle
 from sklearn.feature_extraction import DictVectorizer
 
 def get_features(para, max_count = None):
+	para = para.strip()
 	result = []
 
 	# print para.__class__
@@ -26,15 +27,22 @@ def get_features(para, max_count = None):
 		cur = {}
 		if idx > 0 :
 			cur["prev_len"] = cur_pos - positions[idx - 1]
+			cur["prec_words"] = len(para[positions[idx - 1]: cur_pos].split(' '))
+			cur["last_word_len"] = len(para[positions[idx - 1]: cur_pos].strip().split(' ')[-1])
 		else:
 			cur["prev_len"] = 0
+			cur["prec_words"] = 0
+			cur["last_word_len"] = 0
+
+		# print cur["last_word_len"]
 
 
+		cur["prev_is_brace"] = cur_pos > 1 and para[cur_pos] == ')'
+		cur["prev_is_quote"] = cur_pos > 1 and para[cur_pos] == '"'
+	
 		
-		if cur_pos + 1 < len(para):
-			cur["starts_with_space"] = int(para[cur_pos + 1] == ' ')
-		else:
-			cur["starts_with_space"] = 0
+		cur["starts_with_space"] = cur_pos + 1 < len(para) and para[cur_pos + 1] == ' '
+
 
 		# if idx + 1 < len(positions):
 
@@ -43,29 +51,22 @@ def get_features(para, max_count = None):
 
 		# print tmp.__class__
 
-		if tmp and tmp[0].isupper():
-			cur["next_is_upper"] = 1
-		else:
-			cur["next_is_upper"] = 0
-
-
-		# if len(cands) > c + 2:
-		# 	if cands[c + 1] == '.' and cands[c + 2] == '.':
-		# 		cur["is_elipsis"] = 1
-		# 	else:
-		# 		cur["is_elipsis"] = 0
-		# else:
-		# 	cur["is_elipsis"] = 0
-
-		# if len(cands) > c + 1 and cands[c + 1] and cands[c + 1][0].isupper():
+		# if tmp and tmp[0].isupper():
 		# 	cur["next_is_upper"] = 1
 		# else:
 		# 	cur["next_is_upper"] = 0
 
-		# if c + 1 == len(cands):
-		# 	cur["is_end"] = 1
-		# else:
-		# 	cur["is_end"] = 0
+
+		cur["next_is_upper"] = tmp and tmp[0].isupper()
+
+		cur["is_elipsis"]  =  cur_pos + 2 < len(para) and para[cur_pos + 1] == '.' and para[cur_pos + 2] == '.'
+
+		
+
+		if cur_pos + 1 == len(para):
+			cur["is_end"] = 1
+		else:
+			cur["is_end"] = 0
 
 		# if c - 1 > 0 and cands[c - 1][-1]
 		# cur["prec_words"] = len(cands[c].split(' '))
