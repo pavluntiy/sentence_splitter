@@ -7,6 +7,8 @@ from sklearn.feature_extraction import DictVectorizer
 
 def get_features(para, max_count = None):
 	result = []
+
+	# print para.__class__
 	# cands = para.strip().split('.')
 
 	positions = [m.start() for m in re.finditer(r'\.', para, re.UNICODE)]
@@ -35,6 +37,16 @@ def get_features(para, max_count = None):
 			cur["starts_with_space"] = 0
 
 		# if idx + 1 < len(positions):
+
+
+		tmp = para[cur_pos + 1:].strip()
+
+		# print tmp.__class__
+
+		if tmp and tmp[0].isupper():
+			cur["next_is_upper"] = 1
+		else:
+			cur["next_is_upper"] = 0
 
 
 		# if len(cands) > c + 2:
@@ -82,6 +94,8 @@ def should_split(para, cands, position):
 
 	# print cands[position]
 
+	# print para.__class__
+
 	x = vectorizer.transform(get_features(para))
 	result = model.predict(x)
 
@@ -89,6 +103,7 @@ def should_split(para, cands, position):
 	# return False
 
 def splitParagraph(para):
+
 	res = []
 
 
@@ -113,5 +128,6 @@ if __name__ == "__main__":
 	vectorizer = pickle.load(open("vectorizer.pickle"))
 
 	for s in sys.stdin:
-		print json.dumps(splitParagraph(s.strip()), ensure_ascii=False)
+		result = splitParagraph(s.decode('utf-8').strip())
+		print json.dumps(result)
 
