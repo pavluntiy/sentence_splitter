@@ -26,13 +26,20 @@ def get_features(para, max_count = None):
 
 		cur = {}
 		if idx > 0 :
-			cur["prev_len"] = cur_pos - positions[idx - 1]
-			cur["prec_words"] = len(para[positions[idx - 1]: cur_pos].split(' '))
-			cur["last_word_len"] = len(para[positions[idx - 1]: cur_pos].strip().split(' ')[-1])
+			prev = para[positions[idx - 1] + 1: cur_pos].strip()
+			cur["prev_len"] = len(prev)
+			cur["prec_words"] = len(prev.split(' '))
+			cur["last_word_len"] = len(prev.split(' ')[-1])
+			cur["prev_starts_upper"] = bool(prev and prev[0].isupper())
+
 		else:
 			cur["prev_len"] = 0
 			cur["prec_words"] = 0
 			cur["last_word_len"] = 0
+			cur["prev_starts_upper"] = 0
+
+		# print cur["prev_starts_upper"]
+
 
 		# print cur["last_word_len"]
 
@@ -57,7 +64,7 @@ def get_features(para, max_count = None):
 		# 	cur["next_is_upper"] = 0
 
 
-		cur["next_is_upper"] = tmp and tmp[0].isupper()
+		cur["next_is_upper"] = bool(tmp and tmp[0].isupper())
 
 		cur["is_elipsis"]  =  cur_pos + 2 < len(para) and para[cur_pos + 1] == '.' and para[cur_pos + 2] == '.'
 
@@ -80,6 +87,8 @@ def get_features(para, max_count = None):
 
 		result.append(cur)
 
+		# print cur.keys()
+
 		if max_count is not None and c >= max_count - 1:
 			break
 
@@ -87,7 +96,7 @@ def get_features(para, max_count = None):
 
 
 
-def should_split(para, cands, position):
+def should_split(para, position):
 	# current = cands[position]
 	# if len(current) > 10 and current.startswith(' '):
 	# 	return True
@@ -112,12 +121,28 @@ def splitParagraph(para):
 	cands = para.split('.')
 	r = cands[0]
 	for c in range(1, len(cands)):
-		if should_split(para, cands, c):
+		if should_split(para, c):
 			res.append(r + '.')
 			r = cands[c]
 		else:
 			r += '.' + cands[c]
 	res.append(r)
+
+	# positions = [m.start() for m in re.finditer(r'\.', para, re.UNICODE)]
+
+	# positions = positions.insert(0, 0)
+
+	# current = para[positions[0]:positions[1]]
+	# for idx in range(1, len(positions)):
+	# 	if should_split(para, positions[idx])
+	# 		res.append(current + para[positions[idx]])
+	# 		if idx + 1 < len(positions:)
+	# 			current = para[positions[idx]:positions[idx + 1]]
+	# 		res.append(current)
+	# 	else:
+	# 		current += para[positions[idx]] + 
+
+
 
 	return {'Paragraph': para, 'Sentences': res}
 
